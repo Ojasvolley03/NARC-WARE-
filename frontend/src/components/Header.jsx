@@ -1,100 +1,83 @@
-import React from 'react';
-import { Search, Bell, Shield, User, Bot, Clock, Filter, FileText, AlertTriangle, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Shield, Clock, Bell, User, CheckCircle2, Lock } from 'lucide-react';
 
-export default function Header({ user, onOpenAssistant, activeCategory, onChangeCategory }) {
-  const [time, setTime] = React.useState(new Date().toLocaleTimeString());
+export default function Header({ user, activeCategory, onChangeCategory, onLock }) {
+  const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
 
-  React.useEffect(() => {
-    const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <header className="h-16 border-b border-slate-800 bg-[#0b1220]/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30 font-mono">
-      {/* Category Threat Mode Selector */}
+    <header className="h-16 border-b border-slate-800 bg-[#070b14] px-6 flex items-center justify-between sticky top-0 z-30 font-sans">
+      {/* Category Threat Domain Filter */}
       <div className="flex items-center space-x-2">
-        <span className="text-[11px] font-bold text-slate-400 uppercase hidden md:inline">THREAT DOMAIN:</span>
-        <div className="flex items-center space-x-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
-          <button
-            onClick={() => onChangeCategory && onChangeCategory('ALL')}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'ALL'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-cyan-glow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            All Threats
-          </button>
-          <button
-            onClick={() => onChangeCategory && onChangeCategory('DRUG_TRAFFICKING')}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'DRUG_TRAFFICKING'
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-cyan-glow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Drug Trafficking
-          </button>
-          <button
-            onClick={() => onChangeCategory && onChangeCategory('EXAM_LEAK')}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-              activeCategory === 'EXAM_LEAK'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-amber-glow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Exam/Paper Leak
-          </button>
+        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline font-mono">Domain:</span>
+        <div className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-800">
+          {[
+            { id: 'ALL', label: 'All Domains' },
+            { id: 'EXAM_LEAK', label: 'Paper Leak' },
+            { id: 'FINANCIAL_SCAM', label: 'Financial Scam' },
+            { id: 'DRUG_TRAFFICKING', label: 'Trafficking' },
+            { id: 'JOB_FRAUD', label: 'Job Fraud' }
+          ].map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => onChangeCategory && onChangeCategory(cat.id)}
+              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                activeCategory === cat.id
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Right Action Icons & Profile */}
-      <div className="flex items-center space-x-3">
-        {/* Clock */}
-        <div className="hidden lg:flex items-center space-x-1.5 text-xs text-cyan-400 bg-cyan-950/40 border border-cyan-500/20 px-3 py-1 rounded-md">
-          <Clock className="w-3.5 h-3.5" />
-          <span>{time} UTC</span>
+      {/* Right Controls */}
+      <div className="flex items-center space-x-4">
+        {/* Real-time System Status */}
+        <div className="hidden md:flex items-center space-x-2 text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span className="font-medium text-[11px] tracking-wide font-mono">SYSTEM ONLINE</span>
         </div>
 
-        {/* Live Test Slide Quick Button */}
-        <Link
-          to="/live-testing"
-          className="flex items-center space-x-1.5 bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/40 px-3 py-1.5 rounded-lg text-xs font-bold shadow-cyan-glow transition-all"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
-          <span>Live Testing</span>
-        </Link>
+        {/* Live Clock */}
+        <div className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-md">
+          <Clock className="w-3.5 h-3.5 text-slate-400" />
+          <span className="font-mono text-[11px]">{time}</span>
+        </div>
 
-        {/* AI Assistant Button */}
-        <button
-          onClick={onOpenAssistant}
-          className="flex items-center space-x-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-cyan-glow transition-all active:scale-95"
-        >
-          <Bot className="w-4 h-4 animate-bounce" />
-          <span className="hidden sm:inline">AI Assistant</span>
-        </button>
+        {/* Exit / Return to Portal */}
+        {onLock && (
+          <button
+            onClick={onLock}
+            title="Lock Console and Return to Portal Logo Screen"
+            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-mono transition-colors"
+          >
+            <Lock className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">Lock Portal</span>
+          </button>
+        )}
 
-        {/* Notification Bell */}
-        <button className="relative p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-800/60 rounded-lg transition-colors">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full"></span>
-        </button>
+        <div className="h-5 w-px bg-slate-800"></div>
 
-        <div className="h-6 w-[1px] bg-slate-800"></div>
-
-        {/* User Badge */}
-        <div className="flex items-center space-x-3 pl-1">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-xs text-slate-950 shadow-cyan-glow">
+        {/* User Profile */}
+        <div className="flex items-center space-x-2.5">
+          <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-semibold text-xs text-cyan-400 font-mono">
             {user?.fullName?.charAt(0) || 'A'}
           </div>
           <div className="hidden sm:block text-left">
             <div className="text-xs font-semibold text-slate-200 leading-tight">
-              {user?.fullName || 'Agent Sarah Vance'}
+              {user?.fullName || 'Security Analyst'}
             </div>
-            <div className="text-[10px] text-cyan-400 leading-tight">
-              {user?.role || 'INVESTIGATOR'} • {user?.badgeNumber || 'BADGE-4891'}
+            <div className="text-[10px] text-slate-400 leading-tight font-mono">
+              {user?.role || 'Incident Response'}
             </div>
           </div>
         </div>
